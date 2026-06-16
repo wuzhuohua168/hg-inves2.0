@@ -1644,7 +1644,28 @@ function updateStockChart(symbolInput){
         save_image:true,
 
         container_id:"stock-chart-container",
-        studies:["RSI@tv-basicstudies"]
+        studies: [
+            { id: "RSI@tv-basicstudies" },
+            { id: "BB@tv-basicstudies", inputs: { length: 20 } },
+            { id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
+            { id: "MASimple@tv-basicstudies", inputs: { length: 250 } }
+        ],
+        studies_overrides: {
+            "RSI.rsi.linewidth": 2,
+            "RSI.rsi.color": "#7B1FA2",
+            "Bollinger Bands.Bollinger Bands 1.linewidth": 1,
+            "Bollinger Bands.Bollinger Bands 1.color": "#2962FF",
+            "Bollinger Bands.Bollinger Bands 2.linewidth": 1,
+            "Bollinger Bands.Bollinger Bands 2.color": "#2962FF",
+            "Bollinger Bands.Bollinger Bands 3.linewidth": 1,
+            "Bollinger Bands.Bollinger Bands 3.color": "#2962FF",
+            "moving average.ma.linestyle": 2,
+            "moving average.ma.linewidth": 1,
+            "moving average.ma.color": "#0000FF",
+            "moving average_1.ma.linestyle": 0,
+            "moving average_1.ma.linewidth": 2,
+            "moving average_1.ma.color": "#FF0000"
+        }
     });
 }
 
