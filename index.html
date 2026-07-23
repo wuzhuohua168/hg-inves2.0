@@ -1645,10 +1645,7 @@ function updateStockChart(symbolInput){
 
         container_id:"stock-chart-container",
         studies: [
-            { id: "RSI@tv-basicstudies" },
-            { id: "MASimple@tv-basicstudies", inputs: { length: 20 } },
-            { id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
-            { id: "MASimple@tv-basicstudies", inputs: { length: 250 } }
+            { id: "RSI@tv-basicstudies" }
         ],
         studies_overrides: {
             "RSI.rsi.linewidth": 2,
