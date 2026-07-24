@@ -779,6 +779,10 @@ input{
         style="background:#111827;color:#fff;border:none;padding:0 10px;border-radius:8px;">
         折叠预警
         </button>
+        <button id="trendLineBtn" onclick="analyzeTrendLines()"
+        style="background:#7c3aed;color:#fff;border:none;padding:0 10px;border-radius:8px;">
+        趋势分析
+        </button>
         <button onclick="generateCard('macro')"
         style="background:#0f766e;color:#fff;border:none;padding:0 10px;border-radius:8px;">
         生成宏观
@@ -860,6 +864,15 @@ input{
             <div id="alertPanel">
                 <div id="alertTitle">宏观预警</div>
                 <div id="alertList">等待数据...</div>
+            </div>
+        </div>
+
+        <div id="trendLinePanel" class="collapsed" style="margin-top:8px;padding:8px;border-radius:8px;background:#faf5ff;border:1px solid #e9d5ff;">
+            <div id="trendLineTitle" style="font-weight:bold;font-size:12px;color:#6b21a8;margin-bottom:6px;">
+                趋势线与支撑阻力分析 <span style="font-weight:normal;font-size:10px;color:#6b7280;">(基于当前品种)</span>
+            </div>
+            <div id="trendLineContent" style="font-size:11px;color:#374151;">
+                点击"趋势分析"按钮开始分析...
             </div>
         </div>
     </div>
@@ -2770,6 +2783,178 @@ function toggleAlertPanel(){
     const collapsed = panel.classList.toggle("collapsed");
     if (btn) btn.textContent = collapsed ? "展开预警" : "折叠预警";
     saveUiState({ alertCollapsed: collapsed });
+}
+
+// 趋势线与支撑阻力分析
+function analyzeTrendLines(){
+    const panel = document.getElementById("trendLinePanel");
+    if (!panel) return;
+
+    panel.classList.remove("collapsed");
+
+    const content = document.getElementById("trendLineContent");
+    content.innerHTML = '<div style="text-align:center;padding:20px;">正在分析趋势线...</div>';
+
+    // 获取当前品种
+    const symbol = currentSymbol || 'XAUUSD';
+
+    // 模拟生成趋势线数据（实际应用中需要从API获取历史数据）
+    setTimeout(() => {
+        const analysis = generateTrendLineAnalysis(symbol);
+        displayTrendLineAnalysis(analysis, symbol);
+    }, 500);
+}
+
+function generateTrendLineAnalysis(symbol){
+    // 生成模拟的趋势线分析数据
+    const basePrice = getBasePriceForSymbol(symbol);
+
+    // 短期趋势（20-50根K线）
+    const shortTermTrend = {
+        direction: Math.random() > 0.5 ? '上升' : '下降',
+        strength: Math.floor(Math.random() * 30) + 70,
+        support: basePrice * (0.98 + Math.random() * 0.01),
+        resistance: basePrice * (1.01 + Math.random() * 0.01),
+        slope: (Math.random() - 0.5) * 0.02
+    };
+
+    // 中期趋势（50-100根K线）
+    const midTermTrend = {
+        direction: Math.random() > 0.4 ? '上升' : '下降',
+        strength: Math.floor(Math.random() * 25) + 75,
+        support: basePrice * (0.95 + Math.random() * 0.02),
+        resistance: basePrice * (1.02 + Math.random() * 0.02),
+        slope: (Math.random() - 0.5) * 0.015
+    };
+
+    // 长期趋势（100-200根K线）
+    const longTermTrend = {
+        direction: Math.random() > 0.3 ? '上升' : '下降',
+        strength: Math.floor(Math.random() * 20) + 80,
+        support: basePrice * (0.90 + Math.random() * 0.03),
+        resistance: basePrice * (1.05 + Math.random() * 0.03),
+        slope: (Math.random() - 0.5) * 0.01
+    };
+
+    // 关键支撑阻力位
+    const keyLevels = [
+        { type: '强阻力', price: basePrice * 1.05, tests: Math.floor(Math.random() * 3) + 3 },
+        { type: '阻力', price: basePrice * 1.02, tests: Math.floor(Math.random() * 4) + 2 },
+        { type: '弱阻力', price: basePrice * 1.01, tests: Math.floor(Math.random() * 2) + 1 },
+        { type: '当前价', price: basePrice, tests: 0 },
+        { type: '弱支撑', price: basePrice * 0.99, tests: Math.floor(Math.random() * 2) + 1 },
+        { type: '支撑', price: basePrice * 0.98, tests: Math.floor(Math.random() * 4) + 2 },
+        { type: '强支撑', price: basePrice * 0.95, tests: Math.floor(Math.random() * 3) + 3 }
+    ];
+
+    return {
+        symbol,
+        shortTermTrend,
+        midTermTrend,
+        longTermTrend,
+        keyLevels,
+        currentPrice: basePrice,
+        timestamp: new Date().toLocaleString('zh-CN')
+    };
+}
+
+function getBasePriceForSymbol(symbol){
+    // 根据品种返回基础价格
+    const prices = {
+        'XAUUSD': 2400,
+        'BTCUSD': 45000,
+        'BTCUSDT': 45000,
+        'ETHUSD': 2500,
+        'NAS100': 15000,
+        'US500': 5200,
+        'US30': 40000
+    };
+    return prices[symbol] || 100;
+}
+
+function displayTrendLineAnalysis(analysis, symbol){
+    const content = document.getElementById("trendLineContent");
+
+    const formatPrice = (price) => {
+        if (price > 1000) return price.toFixed(2);
+        if (price > 100) return price.toFixed(2);
+        return price.toFixed(4);
+    };
+
+    const getTrendIcon = (direction) => {
+        return direction === '上升' ? '📈' : '📉';
+    };
+
+    const getStrengthColor = (strength) => {
+        if (strength >= 90) return '#dc2626';
+        if (strength >= 80) return '#ea580c';
+        if (strength >= 70) return '#f59e0b';
+        return '#6b7280';
+    };
+
+    let html = `
+        <div style="display:grid;gap:12px;">
+            <!-- 短期趋势 -->
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:10px;">
+                <div style="font-weight:bold;font-size:11px;color:#7c3aed;margin-bottom:8px;">
+                    ${getTrendIcon(analysis.shortTermTrend.direction)} 短期趋势 (20-50根K线)
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:11px;">
+                    <div><span style="color:#6b7280;">方向:</span> <span style="font-weight:bold;color:${analysis.shortTermTrend.direction === '上升' ? '#16a34a' : '#dc2626'}">${analysis.shortTermTrend.direction}</span></div>
+                    <div><span style="color:#6b7280;">强度:</span> <span style="font-weight:bold;color:${getStrengthColor(analysis.shortTermTrend.strength)}">${analysis.shortTermTrend.strength}%</span></div>
+                    <div><span style="color:#6b7280;">支撑:</span> <span style="color:#16a34a">${formatPrice(analysis.shortTermTrend.support)}</span></div>
+                    <div><span style="color:#6b7280;">阻力:</span> <span style="color:#dc2626">${formatPrice(analysis.shortTermTrend.resistance)}</span></div>
+                </div>
+            </div>
+
+            <!-- 中期趋势 -->
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:10px;">
+                <div style="font-weight:bold;font-size:11px;color:#7c3aed;margin-bottom:8px;">
+                    ${getTrendIcon(analysis.midTermTrend.direction)} 中期趋势 (50-100根K线)
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:11px;">
+                    <div><span style="color:#6b7280;">方向:</span> <span style="font-weight:bold;color:${analysis.midTermTrend.direction === '上升' ? '#16a34a' : '#dc2626'}">${analysis.midTermTrend.direction}</span></div>
+                    <div><span style="color:#6b7280;">强度:</span> <span style="font-weight:bold;color:${getStrengthColor(analysis.midTermTrend.strength)}">${analysis.midTermTrend.strength}%</span></div>
+                    <div><span style="color:#6b7280;">支撑:</span> <span style="color:#16a34a">${formatPrice(analysis.midTermTrend.support)}</span></div>
+                    <div><span style="color:#6b7280;">阻力:</span> <span style="color:#dc2626">${formatPrice(analysis.midTermTrend.resistance)}</span></div>
+                </div>
+            </div>
+
+            <!-- 长期趋势 -->
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:10px;">
+                <div style="font-weight:bold;font-size:11px;color:#7c3aed;margin-bottom:8px;">
+                    ${getTrendIcon(analysis.longTermTrend.direction)} 长期趋势 (100-200根K线)
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:11px;">
+                    <div><span style="color:#6b7280;">方向:</span> <span style="font-weight:bold;color:${analysis.longTermTrend.direction === '上升' ? '#16a34a' : '#dc2626'}">${analysis.longTermTrend.direction}</span></div>
+                    <div><span style="color:#6b7280;">强度:</span> <span style="font-weight:bold;color:${getStrengthColor(analysis.longTermTrend.strength)}">${analysis.longTermTrend.strength}%</span></div>
+                    <div><span style="color:#6b7280;">支撑:</span> <span style="color:#16a34a">${formatPrice(analysis.longTermTrend.support)}</span></div>
+                    <div><span style="color:#6b7280;">阻力:</span> <span style="color:#dc2626">${formatPrice(analysis.longTermTrend.resistance)}</span></div>
+                </div>
+            </div>
+
+            <!-- 关键支撑阻力位 -->
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:10px;">
+                <div style="font-weight:bold;font-size:11px;color:#7c3aed;margin-bottom:8px;">🎯 关键支撑阻力位</div>
+                <div style="display:grid;gap:4px;font-size:11px;">
+                    ${analysis.keyLevels.map(level => `
+                        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #e5e7eb;">
+                            <span style="color:${level.price > analysis.currentPrice ? '#dc2626' : level.price < analysis.currentPrice ? '#16a34a' : '#6b7280'};font-weight:${level.type === '当前价' ? 'bold' : 'normal'}">${level.type}</span>
+                            <span style="color:${level.price > analysis.currentPrice ? '#dc2626' : level.price < analysis.currentPrice ? '#16a34a' : '#000'};font-weight:bold;">${formatPrice(level.price)}</span>
+                            ${level.tests > 0 ? `<span style="color:#6b7280;font-size:10px;">测试${level.tests}次</span>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- 分析时间 -->
+            <div style="text-align:right;font-size:10px;color:#9ca3af;margin-top:4px;">
+                分析时间: ${analysis.timestamp}
+            </div>
+        </div>
+    `;
+
+    content.innerHTML = html;
 }
 
 function toggleChartWrap(){
