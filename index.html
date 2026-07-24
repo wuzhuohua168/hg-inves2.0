@@ -1640,13 +1640,16 @@ function updateStockChart(symbolInput){
         hide_top_toolbar:false,
         hide_side_toolbar:false,
         hide_legend:false,
+        hide_volume_master:false,
 
         save_image:true,
+        allow_symbol_change:true,
 
         container_id:"stock-chart-container",
+        enabled_features: ["countdown", "study_templates", "use_localstorage_for_settings", "save_chart_properties"],
+        disabled_features: [],
         studies: [
-            { id: "RSI@tv-basicstudies" },
-            { id: "PivotPointStandard@tv-basicstudies" }
+            { id: "RSI@tv-basicstudies" }
         ],
         studies_overrides: {
             "RSI.rsi.linewidth": 2,
